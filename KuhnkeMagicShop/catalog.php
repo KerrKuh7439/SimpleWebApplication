@@ -1,51 +1,48 @@
 <?php
 session_start();
 
+// Connect to the database
+require_once "db.php";
+
+// Create cart if it does not already exist
 if (!isset($_SESSION["cart"])) {
     $_SESSION["cart"] = [];
 }
 
-$products = [
-    1 => [
-        "name" => "Apprentice Wand",
-        "description" => "A polished wooden wand for beginner witches and wizards.",
-        "cost" => 29.99,
-        "image" => "images/apprentice-wand.jpg"
-    ],
-
-    2 => [
-        "name" => "Cauldron Starter Kit",
-        "description" => "A small black cauldron with basic potion-making supplies.",
-        "cost" => 34.99,
-        "image" => "images/cauldron-kit.jpg"
-    ],
-
-    3 => [
-        "name" => "Spellbook Journal",
-        "description" => "A leather-style journal for recording spells, notes, and magical discoveries.",
-        "cost" => 18.99,
-        "image" => "images/spellbook-journal.jpg"
-    ],
-
-    4 => [
-        "name" => "House Color Scarf",
-        "description" => "A warm striped scarf available in several magical house-inspired colors.",
-        "cost" => 22.99,
-        "image" => "images/house-scarf.jpg"
-    ],
-
-    5 => [
-        "name" => "Owl Post Messenger Bag",
-        "description" => "A canvas messenger bag inspired by magical mail delivery.",
-        "cost" => 27.99,
-        "image" => "images/owl-messenger-bag.jpg"
-    ]
+// Product images
+$productImages = [
+    1 => "images/apprentice-wand.jpg",
+    2 => "images/cauldron-kit.jpg",
+    3 => "images/spellbook-journal.jpg",
+    4 => "images/house-scarf.jpg",
+    5 => "images/owl-messenger-bag.jpg"
 ];
 
+// Get products from the database
+$products = [];
+
+$query = "SELECT * FROM products";
+$result = mysqli_query($conn, $query);
+
+while ($row = mysqli_fetch_assoc($result)) {
+
+    $productId = $row["product_id"];
+
+    $products[$productId] = [
+        "name" => $row["product_name"],
+        "description" => $row["product_description"],
+        "cost" => $row["product_cost"],
+        "image" => $productImages[$productId] ?? ""
+    ];
+}
+
+
+// Process quantity changes
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $productId = (int) $_POST["product_id"];
 
+    // Add/increase product
     if (isset($_POST["add"])) {
 
         if (!isset($_SESSION["cart"][$productId])) {
@@ -55,6 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["cart"][$productId]++;
     }
 
+    // Decrease product
     if (isset($_POST["remove"])) {
 
         if (
@@ -78,6 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -91,6 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         rel="stylesheet"
         href="css/styles.css"
     >
+
 </head>
 
 <body>
@@ -107,11 +107,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 </header>
 
+
 <div class="container">
 
     <h2 class="page-title">
         Magical Goods
     </h2>
+
 
     <div class="product-grid">
 
@@ -122,6 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION["cart"][$productId] ?? 0;
             ?>
 
+
             <div class="product-card">
 
                 <img
@@ -130,30 +133,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     alt="<?php echo $product["name"]; ?>"
                 >
 
+
                 <h3>
                     <?php echo $product["name"]; ?>
                 </h3>
+
 
                 <p class="product-id">
                     Product ID:
                     <?php echo $productId; ?>
                 </p>
 
+
                 <p>
                     <?php echo $product["description"]; ?>
                 </p>
 
+
                 <p class="price">
+
                     $<?php echo number_format(
                         $product["cost"],
                         2
                     ); ?>
+
                 </p>
 
+
                 <p class="quantity">
+
                     Quantity in Cart:
                     <?php echo $quantity; ?>
+
                 </p>
+
 
                 <form
                     method="post"
@@ -166,6 +179,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         value="<?php echo $productId; ?>"
                     >
 
+
                     <button
                         type="submit"
                         name="remove"
@@ -174,9 +188,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         −
                     </button>
 
+
                     <span class="quantity-number">
+
                         <?php echo $quantity; ?>
+
                     </span>
+
 
                     <button
                         type="submit"
@@ -196,12 +214,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 </div>
 
+
 <footer>
+
     The Enchanted Cauldron |
     Magical Goods for Every Witch and Wizard
+
 </footer>
 
+
 <script>
+
 document.addEventListener(
     "DOMContentLoaded",
     function () {
@@ -223,6 +246,7 @@ document.addEventListener(
             );
         }
 
+
         const forms =
             document.querySelectorAll("form");
 
@@ -236,12 +260,15 @@ document.addEventListener(
                         "catalogScrollPosition",
                         window.scrollY
                     );
+
                 }
             );
 
         });
+
     }
 );
+
 </script>
 
 </body>

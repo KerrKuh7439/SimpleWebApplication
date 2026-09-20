@@ -1,63 +1,58 @@
 <?php
 session_start();
 
+// Connect to the database
+require_once "db.php";
+
+// Create cart if it does not already exist
 if (!isset($_SESSION["cart"])) {
     $_SESSION["cart"] = [];
 }
 
-$products = [
-    1 => [
-        "name" => "Apprentice Wand",
-        "description" => "A polished wooden wand for beginner witches and wizards.",
-        "cost" => 29.99,
-        "image" => "images/apprentice-wand.jpg"
-    ],
-
-    2 => [
-        "name" => "Cauldron Starter Kit",
-        "description" => "A small black cauldron with basic potion-making supplies.",
-        "cost" => 34.99,
-        "image" => "images/cauldron-kit.jpg"
-    ],
-
-    3 => [
-        "name" => "Spellbook Journal",
-        "description" => "A leather-style journal for recording spells, notes, and magical discoveries.",
-        "cost" => 18.99,
-        "image" => "images/spellbook-journal.jpg"
-    ],
-
-    4 => [
-        "name" => "House Color Scarf",
-        "description" => "A warm striped scarf available in several magical house-inspired colors.",
-        "cost" => 22.99,
-        "image" => "images/house-scarf.jpg"
-    ],
-
-    5 => [
-        "name" => "Owl Post Messenger Bag",
-        "description" => "A canvas messenger bag inspired by magical mail delivery.",
-        "cost" => 27.99,
-        "image" => "images/owl-messenger-bag.jpg"
-    ]
+// Product images
+$productImages = [
+    1 => "images/apprentice-wand.jpg",
+    2 => "images/cauldron-kit.jpg",
+    3 => "images/spellbook-journal.jpg",
+    4 => "images/house-scarf.jpg",
+    5 => "images/owl-messenger-bag.jpg"
 ];
 
+// Get products from the database
+$products = [];
+
+$query = "SELECT * FROM products";
+$result = mysqli_query($conn, $query);
+
+while ($row = mysqli_fetch_assoc($result)) {
+
+    $productId = $row["product_id"];
+
+    $products[$productId] = [
+        "name" => $row["product_name"],
+        "description" => $row["product_description"],
+        "cost" => $row["product_cost"],
+        "image" => $productImages[$productId] ?? ""
+    ];
+}
+
+
+// Process cart changes
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $productId =
-        (int) $_POST["product_id"];
+    $productId = (int) $_POST["product_id"];
 
+    // Increase quantity
     if (isset($_POST["increase"])) {
 
-        if (!isset(
-            $_SESSION["cart"][$productId]
-        )) {
+        if (!isset($_SESSION["cart"][$productId])) {
             $_SESSION["cart"][$productId] = 0;
         }
 
         $_SESSION["cart"][$productId]++;
     }
 
+    // Decrease quantity
     if (isset($_POST["decrease"])) {
 
         if (
@@ -71,27 +66,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             isset($_SESSION["cart"][$productId]) &&
             $_SESSION["cart"][$productId] <= 0
         ) {
-            unset(
-                $_SESSION["cart"][$productId]
-            );
+            unset($_SESSION["cart"][$productId]);
         }
     }
 
+    // Remove product completely
     if (isset($_POST["remove"])) {
-
-        unset(
-            $_SESSION["cart"][$productId]
-        );
+        unset($_SESSION["cart"][$productId]);
     }
 }
 
+
+// Calculate cart totals
 $subtotal = 0;
 $totalItems = 0;
 
-foreach (
-    $_SESSION["cart"]
-    as $productId => $quantity
-) {
+foreach ($_SESSION["cart"] as $productId => $quantity) {
 
     if (
         isset($products[$productId]) &&
@@ -106,16 +96,15 @@ foreach (
     }
 }
 
-$tax =
-    $subtotal * 0.05;
+$tax = $subtotal * 0.05;
 
-$shipping =
-    $subtotal * 0.10;
+$shipping = $subtotal * 0.10;
 
 $orderTotal =
     $subtotal +
     $tax +
     $shipping;
+
 ?>
 
 <!DOCTYPE html>
@@ -131,8 +120,7 @@ $orderTotal =
     >
 
     <title>
-        Shopping Cart |
-        The Enchanted Cauldron
+        Shopping Cart | The Enchanted Cauldron
     </title>
 
     <link
@@ -151,6 +139,7 @@ $orderTotal =
     </h1>
 
     <nav>
+
         <a href="index.php">
             Home
         </a>
@@ -162,9 +151,11 @@ $orderTotal =
         <a href="cart.php">
             Shopping Cart
         </a>
+
     </nav>
 
 </header>
+
 
 <div class="container">
 
@@ -172,7 +163,9 @@ $orderTotal =
         Your Magical Shopping Cart
     </h2>
 
+
     <?php if ($totalItems == 0): ?>
+
 
         <div class="empty-cart">
 
@@ -194,21 +187,27 @@ $orderTotal =
 
         </div>
 
+
     <?php else: ?>
+
 
         <div class="cart-grid">
 
+
             <div class="cart-items">
+
 
                 <?php foreach (
                     $_SESSION["cart"]
                     as $productId => $quantity
                 ): ?>
 
+
                     <?php if (
                         $quantity > 0 &&
                         isset($products[$productId])
                     ): ?>
+
 
                         <?php
 
@@ -221,11 +220,11 @@ $orderTotal =
 
                         ?>
 
+
                         <div class="cart-card">
 
-                            <div
-                                class="cart-product-image"
-                            >
+
+                            <div class="cart-product-image">
 
                                 <img
                                     src="<?php echo
@@ -238,15 +237,15 @@ $orderTotal =
 
                             </div>
 
-                            <div
-                                class="cart-product-info"
-                            >
+
+                            <div class="cart-product-info">
 
                                 <h3>
                                     <?php echo
                                         $product["name"];
                                     ?>
                                 </h3>
+
 
                                 <p class="product-id">
 
@@ -257,13 +256,13 @@ $orderTotal =
 
                                 </p>
 
+
                                 <p>
                                     <?php echo
-                                        $product[
-                                            "description"
-                                        ];
+                                        $product["description"];
                                     ?>
                                 </p>
+
 
                                 <p class="price">
 
@@ -278,15 +277,13 @@ $orderTotal =
 
                             </div>
 
-                            <div
-                                class="quantity-area"
-                            >
 
-                                <p
-                                    class="quantity-label"
-                                >
+                            <div class="quantity-area">
+
+                                <p class="quantity-label">
                                     Quantity
                                 </p>
+
 
                                 <form
                                     method="post"
@@ -301,6 +298,7 @@ $orderTotal =
                                         ?>"
                                     >
 
+
                                     <button
                                         type="submit"
                                         name="decrease"
@@ -309,13 +307,15 @@ $orderTotal =
                                         −
                                     </button>
 
-                                    <span
-                                        class="quantity-number"
-                                    >
+
+                                    <span class="quantity-number">
+
                                         <?php echo
                                             $quantity;
                                         ?>
+
                                     </span>
+
 
                                     <button
                                         type="submit"
@@ -327,9 +327,8 @@ $orderTotal =
 
                                 </form>
 
-                                <p
-                                    class="product-total"
-                                >
+
+                                <p class="product-total">
 
                                     Total:
                                     $<?php echo
@@ -343,9 +342,8 @@ $orderTotal =
 
                             </div>
 
-                            <div
-                                class="remove-area"
-                            >
+
+                            <div class="remove-area">
 
                                 <form method="post">
 
@@ -369,19 +367,25 @@ $orderTotal =
 
                             </div>
 
+
                         </div>
+
 
                     <?php endif; ?>
 
+
                 <?php endforeach; ?>
 
+
             </div>
+
 
             <div class="cart-summary">
 
                 <h3>
                     Order Summary
                 </h3>
+
 
                 <div class="summary-row">
 
@@ -396,6 +400,7 @@ $orderTotal =
                     </span>
 
                 </div>
+
 
                 <div class="summary-row">
 
@@ -414,6 +419,7 @@ $orderTotal =
 
                 </div>
 
+
                 <div class="summary-row">
 
                     <span>
@@ -430,6 +436,7 @@ $orderTotal =
                     </span>
 
                 </div>
+
 
                 <div class="summary-row">
 
@@ -448,11 +455,11 @@ $orderTotal =
 
                 </div>
 
+
                 <hr>
 
-                <div
-                    class="summary-row order-total"
-                >
+
+                <div class="summary-row order-total">
 
                     <span>
                         Order Total
@@ -469,12 +476,14 @@ $orderTotal =
 
                 </div>
 
+
                 <a
                     href="checkout.php"
                     class="checkout-button"
                 >
                     Check Out
                 </a>
+
 
                 <a
                     href="catalog.php"
@@ -485,18 +494,26 @@ $orderTotal =
 
             </div>
 
+
         </div>
+
 
     <?php endif; ?>
 
+
 </div>
 
+
 <footer>
+
     The Enchanted Cauldron |
     Magical Goods for Every Witch and Wizard
+
 </footer>
 
+
 <script>
+
 document.addEventListener(
     "DOMContentLoaded",
     function () {
@@ -518,6 +535,7 @@ document.addEventListener(
             );
         }
 
+
         const forms =
             document.querySelectorAll("form");
 
@@ -531,12 +549,15 @@ document.addEventListener(
                         "cartScrollPosition",
                         window.scrollY
                     );
+
                 }
             );
 
         });
+
     }
 );
+
 </script>
 
 </body>
