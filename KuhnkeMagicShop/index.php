@@ -14,8 +14,8 @@
 
     <nav>
         <a href="index.php">Home</a>
-        <a href="catalog.php">Shop</a>
-        <a href="cart.php">Shopping Cart</a>
+        <a href="controller/catalog_controller.php">Shop</a>
+        <a href="controller/cart_controller.php">Shopping Cart</a>
     </nav>
 </header>
 
@@ -31,7 +31,7 @@
             spellbooks, and more.
         </p>
 
-        <a href="catalog.php" class="link-button">
+        <a href="controller/catalog_controller.php" class="link-button">
             Enter the Shop
         </a>
 
