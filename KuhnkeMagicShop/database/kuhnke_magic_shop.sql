@@ -22,7 +22,6 @@ SET time_zone = "+00:00";
 CREATE DATABASE IF NOT EXISTS `kuhnke_magic_shop`;
 
 USE `kuhnke_magic_shop`;
-
 --
 
 -- --------------------------------------------------------

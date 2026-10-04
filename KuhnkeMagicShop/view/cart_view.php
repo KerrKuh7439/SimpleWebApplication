@@ -75,9 +75,34 @@ $product_images = [
 
         .cart-summary {
             margin-top: 30px;
+            padding: 25px;
+            background: #ffffff;
+            border-radius: 10px;
         }
 
-        .cart-summary a {
+        .cart-summary h3 {
+            margin-top: 0;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            max-width: 500px;
+            padding: 6px 0;
+        }
+
+        .order-total {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #cccccc;
+            max-width: 500px;
+        }
+
+        .cart-links {
+            margin-top: 25px;
+        }
+
+        .cart-links a {
             display: inline-block;
             margin-right: 15px;
         }
@@ -266,32 +291,131 @@ $product_images = [
             </div>
 
 
+            <?php
+
+            // Calculate the total number of items ordered.
+            $total_items = 0;
+
+            foreach ($cart_items as $item) {
+                $total_items += $item['quantity'];
+            }
+
+            // Calculate the Week 5 order totals.
+            $subtotal = $cart_total;
+
+            $tax =
+                $subtotal * 0.05;
+
+            $shipping =
+                $subtotal * 0.10;
+
+            $order_total =
+                $subtotal + $tax + $shipping;
+
+            ?>
+
+
             <div class="cart-summary">
 
                 <h3>
-
-                    Cart Total:
-
-                    $<span id="cart-total">
-                        <?php
-                        echo number_format(
-                            $cart_total,
-                            2
-                        );
-                        ?>
-                    </span>
-
+                    Order Summary
                 </h3>
 
 
-                <a href="catalog_controller.php">
-                    Continue Shopping
-                </a>
+                <div class="summary-row">
+
+                    <span>
+                        Items Ordered:
+                    </span>
+
+                    <strong>
+                        <?php echo $total_items; ?>
+                    </strong>
+
+                </div>
 
 
-                <a href="../checkout.php">
-                    Checkout
-                </a>
+                <div class="summary-row">
+
+                    <span>
+                        Subtotal:
+                    </span>
+
+                    <strong>
+                        $<?php
+                        echo number_format(
+                            $subtotal,
+                            2
+                        );
+                        ?>
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-row">
+
+                    <span>
+                        Tax (5%):
+                    </span>
+
+                    <strong>
+                        $<?php
+                        echo number_format(
+                            $tax,
+                            2
+                        );
+                        ?>
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-row">
+
+                    <span>
+                        Shipping &amp; Handling (10%):
+                    </span>
+
+                    <strong>
+                        $<?php
+                        echo number_format(
+                            $shipping,
+                            2
+                        );
+                        ?>
+                    </strong>
+
+                </div>
+
+
+                <div class="order-total">
+
+                    <h3>
+                        Order Total:
+
+                        $<?php
+                        echo number_format(
+                            $order_total,
+                            2
+                        );
+                        ?>
+                    </h3>
+
+                </div>
+
+
+                <div class="cart-links">
+
+                    <a href="catalog_controller.php">
+                        Continue Shopping
+                    </a>
+
+                    <a href="../checkout.php">
+                        Checkout
+                    </a>
+
+                </div>
 
             </div>
 
